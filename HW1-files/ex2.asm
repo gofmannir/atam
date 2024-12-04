@@ -9,8 +9,6 @@ _start:
 
     # Load the base address of the destination 
     movq (LittleEndianResult), %rdi
-    testq %rdi, %rdi           # Check if the address is 0
-    jz done_HW1                # If the address is 0, jump to done 
 
     # Load the type into %ecx
     movzbq (Type), %rcx
