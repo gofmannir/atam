@@ -3,31 +3,31 @@
 .section .text
 _start:
     # Load Num1 and Num2 into registers
-    movl Num1(%rip), %eax       # Load Num1 into EAX
-    movl Num2(%rip), %ebx       # Load Num2 into EBX
+    movl Num1(%rip), %eax       
+    movl Num2(%rip), %ebx       
  
     # Initialize counters
-    xorl %ecx, %ecx             # Counter for Num1 bits
-    xorl %edx, %edx             # Counter for Num2 bits
+    xorl %ecx, %ecx             # counter for Num1 bits
+    xorl %edx, %edx             # counter for Num2 bits
 
 count_bits_num1_HW1:
-    testl $1, %eax
-    jz skip_increment_num1_HW1
-    incl %ecx
+    testl $1, %eax              # check if Num1 lsb is 1
+    jz skip_increment_num1_HW1  # if no, skip increment counter
+    incl %ecx                   # if yes, increment counter
 skip_increment_num1_HW1:
-    shrl $1, %eax
+    shrl $1, %eax               # shift right to check next lsb bit
     jnz count_bits_num1_HW1
 
 count_bits_num2_HW1:
-    testl $1, %ebx
-    jz skip_increment_num2_HW1
-    incl %edx
+    testl $1, %ebx              # check if Num2 lsb is 1
+    jz skip_increment_num2_HW1  # if no, skip increment counter
+    incl %edx                   # if yes, increment counter
 
 skip_increment_num2_HW1:
-    shrl $1, %ebx
+    shrl $1, %ebx               # shift right to check next lsb bit
     jnz count_bits_num2_HW1
 
-    # Compare the counts
+    # Compare the counters
     cmpl %ecx, %edx
     jne not_equal_HW1
     movb $1, BitCheck(%rip)     # Set BitCheck to 1 (true)
