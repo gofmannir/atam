@@ -1,5 +1,13 @@
 .global _start
 
+.section .data
+Num1: 
+	.int 0b10000000000000000000000000001011
+Num2: 
+	.int 0b00001000000000010000000110000000
+BitCheck:
+    .byte 0
+
 .section .text
 _start:
     # Load Num1 and Num2 into registers
@@ -31,9 +39,19 @@ skip_increment_num2_HW1:
     cmpl %ecx, %edx
     jne not_equal_HW1
     movb $1, BitCheck(%rip)     # Set BitCheck to 1 (true)
-    jmp done_HW1
+    jmp end_program_HW1
 
 not_equal_HW1:
     movb $0, BitCheck(%rip)     # Set BitCheck to 0 (false)
 
-done_HW1:
+end_program_HW1:
+    # Exit syscall as before
+
+    movq $60, %rax
+    xorq %rdi, %rdi
+    syscall
+
+/**
+as ex1.asm -o ex1.o && ld ex1.o -o ex1 && ./ex1
+
+**/

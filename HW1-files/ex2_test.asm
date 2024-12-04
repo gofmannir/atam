@@ -1,13 +1,34 @@
 .global _start
 
+.section .data
+
+MyArray:
+    .byte 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0x91, 0x92, 0x93
+
+MyArrayResult:
+    .byte 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+
+Adrress: 
+	.quad MyArray
+
+Type: 
+	.int 4
+
+Length:
+    .int 3
+
+LittleEndianResult:
+	.quad MyArrayResult
+
+
 .section .text
 _start:
     
     # Load the base address of the source array
-    movq $Adrress, %rsi
+    movq (Adrress), %rsi
 
     # Load the base address of the destination array
-    movq $LittleEndianResult, %rdi
+    leaq LittleEndianResult(%rip), %rdi
 
     # Load the type (size of each element) into %ecx
     movzbq Type(%rip), %rcx
@@ -41,3 +62,15 @@ reverse_bytes_HW1:
     jmp process_elements_HW1         # Repeat for the next element
 
 done_HW1:
+
+
+    movq $60, %rax
+    xorq %rdi, %rdi
+    syscall
+
+
+
+/**
+as ex2.asm -o ex2.o && ld ex2.o -o ex2 && ./ex2
+
+**/

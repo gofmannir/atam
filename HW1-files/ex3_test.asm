@@ -1,5 +1,27 @@
 .global _start
 
+.section .data
+
+Node2:
+    .quad 0
+    .int 15
+    .quad 0
+
+Node3:
+    .quad 0
+    .int 5
+    .quad 0
+
+root:
+    .quad Node3
+    .int 10
+    .quad Node2
+
+node:
+    .quad 0
+    .int 13
+    .quad 0
+
 .section .text
 _start:
 
@@ -45,3 +67,11 @@ insert_right_HW1:
     movq %rsi, 12(%rdi) # set the pointer of the child to rsi (new node)
 
 done_HW1:
+
+    movq $60, %rax
+    xorq %rdi, %rdi
+    syscall
+
+/*
+as ex3.asm -o ex3.o && ld ex3.o -o ex3 && ./ex3
+*/
