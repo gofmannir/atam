@@ -3,8 +3,8 @@
 .section .text
 _start:
 
-    movq $root, %rdi
-    movq $node, %rsi
+    movq (root), %rdi
+    movq (node), %rsi
     movl 8(%rsi), %edx # Save data - node->data
 
 search_HW1:
