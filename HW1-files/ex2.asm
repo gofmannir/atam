@@ -4,10 +4,10 @@
 _start:
     
     # Load the base address of the source array
-    movq $Adrress, %rsi
+    movq (Adrress), %rsi
 
     # Load the base address of the destination array
-    movq $LittleEndianResult, %rdi
+    movq (LittleEndianResult), %rdi
 
     # Load the type (size of each element) into %ecx
     movzbq Type(%rip), %rcx
