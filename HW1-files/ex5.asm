@@ -7,7 +7,7 @@
 # # \t\t = \t\t = \t \t=
 # #\t\t = \t \t\t\t = 
 # #= = =
-# command: .asciz " == "
+# command: .asciz "=)a= "
 # result: .byte 0
 
 .section .text
@@ -285,14 +285,14 @@ inc_the_block_count_3:
 
 check_second_equals_block_3:
     cmpb $61, %r9b # Check if the last char was '='
-    jne check_case3
+    jne check_edge_cases_with_one_space
 
     # addq $1, %rdi
     cmpb $32, (%rdi) # Space
     je inc_the_block_count_3
     cmpb $9, (%rdi) # Space
     je inc_the_block_count_3
-    jmp check_case3
+    jmp check_edge_cases_with_one_space
 
 skip_spaces_for_counting_blocks_3:
     # Set flag to 1
@@ -311,7 +311,7 @@ skip_spaces_for_counting_blocks_3:
 
 check_if_was_chars_before_last_spaces_3:
     cmpb $0, %r9b
-    jne check_case3 # was chars, next case
+    jne check_edge_cases_with_one_space # was chars, next case
     addq $1, %rax
     jmp check_good_blocks_3
 
@@ -325,12 +325,57 @@ check_process_blocks_end_3:
 check_good_blocks_3:
     cmpq $3, %rax # check counted parts # TODO: Can be made with 3
     je set_result_valid
-    jmp check_case3 # If found enough
+    jmp check_edge_cases_with_one_space # If found enough
 
 //////////
 //////////
 //////////
 //////////
+
+check_edge_cases_with_one_space:
+    movq %rsi, %rdi            # get the original pointer
+    movq $0, %rax              # Part counter
+
+    #  if the first char is a space
+    cmpb $32, (%rdi)        # Space
+    je check_case3
+    cmpb $9, (%rdi)         # Tab
+    je check_case3
+    
+    process_chars_until_space:
+        cmpb $0, (%rdi)            # Check if the string is empty
+        je check_case3
+        inc %rdi
+        
+        cmpb $32, (%rdi)        # Space
+        je found_space_1
+        cmpb $9, (%rdi)         # Tab
+        je found_space_1
+
+        jmp process_chars_until_space
+        
+    found_space_1:
+        # check if the preveios char is "="
+        subq $1, %rdi
+        cmpb $61, (%rdi)        # =
+        je continue_until_end_without_spaces
+        jmp check_case3
+
+    continue_until_end_without_spaces:
+        addq $2, %rdi
+
+        process_chars_until_end_without_spaces:
+            cmpb $0, (%rdi)            # Check if the string is empty
+            je set_result_valid
+            inc %rdi
+            
+            cmpb $32, (%rdi)        # Space
+            je check_case3
+            cmpb $9, (%rdi)         # Tab
+            je check_case3
+
+            jmp process_chars_until_end_without_spaces
+
 
 #--------------------------------------------
 # Case 3: Function-like declaration

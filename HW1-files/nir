@@ -104,6 +104,8 @@
 /home/student/Desktop/atam/HW1-files/ex5.asm tested with test157: FAIL '=== ('
 /home/student/Desktop/atam/HW1-files/ex5.asm tested with test178: FAIL '== ==a'
 
+' =='
+
 check_good_blocks
 
 
