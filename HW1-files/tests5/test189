@@ -1,0 +1,23 @@
+.global _start
+
+.section .text
+  movb __ExpectedResult, %al
+  cmpb %al, result
+  jne bad_exit
+
+  movq $60, %rax
+  movq $0, %rdi
+  syscall
+
+bad_exit:
+  movq $60, %rax
+  movq $1, %rdi
+  syscall
+
+.section .data
+command: .asciz "()()) "
+__Garbage_931439413: .byte 96, 94, 100, 0, 192, 23, 217, 105, 250, 118
+__ExpectedResult: .byte 0
+__Garbage_228598278: .byte 90, 201, 177, 126, 9, 173, 186
+result: .byte 0
+__Garbage_490921261: .byte 6, 218, 168, 45, 173, 168, 182, 232, 131, 202

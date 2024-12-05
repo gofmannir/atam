@@ -1,0 +1,39 @@
+.global _start
+
+.section .text
+
+  movb result, %al
+  cmpb %al, __ExpectedResult
+  jne bad_exit
+
+  movq $60, %rax
+  movq $0, %rdi
+  syscall
+
+bad_exit:
+  movq $60, %rax
+  movq $1, %rdi
+  syscall
+
+.section .data
+__ExpectedResult: .byte 3
+__Garbage_947387847: .byte 179, 120, 4, 58, 154, 198, 57
+result: .byte 36
+__Garbage_49976628: .byte 139, 17, 81, 177, 63, 92, 11, 233
+__Nodes:
+.quad 0
+.int 1877725239
+.quad __Nodes + 40
+.quad __Nodes + 40
+.int 228
+.quad 0
+.quad __Nodes + 0
+.int 228
+.quad __Nodes + 20
+__Garbage_941172081: .byte 225, 24, 207, 194, 229, 165, 94, 238, 212, 109
+node: .quad __Nodes + 0
+__Garbage_851998356: .byte 192, 100, 194, 59, 69, 92, 45
+
+
+# Array: [1877725239, 228, 228]
+# Position: 0
