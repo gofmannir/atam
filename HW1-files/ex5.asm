@@ -7,7 +7,7 @@
 # # \t\t = \t\t = \t \t=
 # #\t\t = \t \t\t\t = 
 # #= = =
-# command: .asciz "\t\t = \t \t\t\t = "
+# command: .asciz " == "
 # result: .byte 0
 
 .section .text
@@ -83,7 +83,6 @@ check_after_equals:
     cmpb $0, (%rdi)            # Check if the string is empty
     je set_result_valid
 
-    # movq $0, %r8
     cmpb $32, (%rdi)        # Space
     je skip_spaces_case12_after_equals
     cmpb $9, (%rdi)         # Tab
@@ -91,7 +90,6 @@ check_after_equals:
 
     after_cleaning_spaces:
         # cmpq $1, %r8 # If there was spaces after the equals, all good.
-        # je process_words_end
         jmp process_words_end
 
 
@@ -158,8 +156,6 @@ start_edge_case_count_blocks:
         cmpb $9, (%rdi)         # Tab
         je skip_spaces_for_counting_blocks
         
-        # cmpq $1, %r8 # The word ended with a space
-        # je finished_proccessing_word_2 # Means that we encounter space or a group of spaces
         movb (%rdi), %r9b # Will hold the last char of this block
 
         inc %rdi
@@ -168,7 +164,6 @@ start_edge_case_count_blocks:
             inc %rax # The part counter
 
             movb $0, %r9b
-            #rax is the 3 blc, we need to check if it's '='
             cmpq $2, %rax # finished scanning 3 block, check if the last block is only a '='
             je check_third_equals_block
 
@@ -180,14 +175,14 @@ inc_the_block_count:
 
 check_third_equals_block:
     cmpb $61, (%rdi) # Check if the last char is '='
-    jne check_case3
+    jne start_edge_case_count_3_blocks
 
     addq $1, %rdi
     cmpb $32, (%rdi) # Space
     je inc_the_block_count
     cmpb $9, (%rdi) # Space
     je inc_the_block_count
-    jmp check_case3
+    jmp start_edge_case_count_3_blocks
 
 skip_spaces_for_counting_blocks:
     # Set flag to 1
@@ -204,126 +199,138 @@ skip_spaces_for_counting_blocks:
 
 check_if_was_chars_before_last_spaces:
     cmpb $0, %r9b
-    jne check_case3 # was chars, next case
+    jne start_edge_case_count_3_blocks # was chars, next case
     jmp check_good_blocks
 
 
 check_process_blocks_end:
-    # TODO : Allow the last forth' block to be spaces. 
     cmpq $1, %r8 # The entire input string ended with a space. 
     je check_if_was_chars_before_last_spaces
 
 check_good_blocks:
     cmpq $4, %rax # check counted parts # TODO: Can be made with 3
     je set_result_valid
+    jmp start_edge_case_count_3_blocks # If found enough
+
+///////// 
+////////
+////////
+//////////
+
+
+start_edge_case_count_3_blocks:
+    # Starts with a char.
+    # Ends with a char.
+    # The third block is only and only '='
+    movq %rsi, %rdi            # get the original pointer
+    movq $0, %rax              # Part counter
+
+    #  if the first char is a space, count as rax=1
+    cmpb $32, (%rdi)        # Space
+    je skip_spaces_case_3
+    cmpb $9, (%rdi)         # Tab
+    je skip_spaces_case_3
+    jmp process_blocks_until_end_3
+
+    skip_spaces_case_3:
+        cmpb $32, (%rdi)
+        je inc_rdi_case_3
+        cmpb $9, (%rdi)
+        je inc_rdi_case_3
+        jmp process_blocks_until_end_3
+
+        inc_rdi_case_3:
+            movq $1, %rax
+            inc %rdi
+            jmp skip_spaces_case_3
+
+    process_blocks_until_end_3:
+        cmpb $0, (%rdi)            # Check if the string is empty
+        je check_process_blocks_end_3
+        movb $0, %r9b
+        
+        # set flag to 0
+        movq $0, %r8
+        cmpb $32, (%rdi)        # Space
+        je skip_spaces_for_counting_blocks_3
+        cmpb $9, (%rdi)         # Tab
+        je skip_spaces_for_counting_blocks_3
+        
+        # cmpq $1, %r8 # The word ended with a space
+        # je finished_proccessing_word_3 # Means that we encounter space or a group of spaces
+        movb (%rdi), %r9b # Will hold the last char of this block
+
+        inc %rdi
+        
+        movq $0, %r8
+        cmpb $32, (%rdi)        # Space
+        je finished_proccessing_word_3
+        cmpb $9, (%rdi)         # Tab
+        je finished_proccessing_word_3
+
+        jmp process_blocks_until_end_3
+        finished_proccessing_word_3:
+            inc %rax # The part counter
+
+            # movb $0, %r9b
+            #rax is the 3 blc, we need to check if it's '='
+            cmpq $2, %rax # finished scanning 2 block, check if the last block is only a '='
+            je check_second_equals_block_3
+
+            jmp process_blocks_until_end_3
+
+inc_the_block_count_3:
+    # inc %rax
+    jmp process_blocks_until_end_3
+
+check_second_equals_block_3:
+    cmpb $61, %r9b # Check if the last char was '='
+    jne check_case3
+
+    # addq $1, %rdi
+    cmpb $32, (%rdi) # Space
+    je inc_the_block_count_3
+    cmpb $9, (%rdi) # Space
+    je inc_the_block_count_3
+    jmp check_case3
+
+skip_spaces_for_counting_blocks_3:
+    # Set flag to 1
+    movq $1, %r8
+    # Skip multiple spaces or tabs between parts
+    skip_space_loop_for_counting_blocks_3:
+        cmpb $0, (%rdi) # Check if the last char is '='
+        je finished_proccessing_word_3
+        inc %rdi
+        cmpb $32, (%rdi)
+        je skip_space_loop_for_counting_blocks_3
+        cmpb $9, (%rdi)
+        je skip_space_loop_for_counting_blocks_3
+
+        jmp process_blocks_until_end_3
+
+check_if_was_chars_before_last_spaces_3:
+    cmpb $0, %r9b
+    jne check_case3 # was chars, next case
+    addq $1, %rax
+    jmp check_good_blocks_3
+
+
+check_process_blocks_end_3:
+    cmpq $1, %r8 # The entire input string ended with a space. 
+    je check_if_was_chars_before_last_spaces_3
+    # Ended with a char! add +1 to rax.
+    addq $1, %rax
+
+check_good_blocks_3:
+    cmpq $3, %rax # check counted parts # TODO: Can be made with 3
+    je set_result_valid
     jmp check_case3 # If found enough
 
-
-
-    # Until here, check how many blocked were there and if the 3'rd block is a '='
-
-
-
-# check_what_found_after_equals:
-    # we done running the string, check if we found chars/spaces
-
-# check_case1:
-#     movq %rdi, %rcx            # Save the original pointer
-#     mov $0, %rax               # Part counter
-#     jmp count_parts_case1
-
-# count_parts_case1:
-#     cmpb $0, (%rdi)            # Check for null terminator
-#     je check_case2             # If end of string, check next case
-
-#     cmpb $32, (%rdi)           # Check for space ' '
-#     je skip_spaces_case1
-#     cmpb $9, (%rdi)            # Check for tab '\t'
-#     je skip_spaces_case1
-
-#     # Start of a part
-#     inc %rax                   # Increment part counter
-
-# scan_part_case1:
-#     cmpb $0, (%rdi)            # End of string?
-#     je check_case1_result
-#     cmpb $32, (%rdi)           # Space?
-#     je count_parts_case1
-#     cmpb $9, (%rdi)            # Tab?
-#     je count_parts_case1
-
-#     # Check for spaces or tabs within a part (not allowed)
-#     # Advance pointer
-#     inc %rdi
-#     jmp scan_part_case1
-
-# skip_spaces_case1:
-#     # Skip multiple spaces or tabs between parts
-# skip_space_loop_case1:
-#     inc %rdi
-#     cmpb $32, (%rdi)
-#     je skip_space_loop_case1
-#     cmpb $9, (%rdi)
-#     je skip_space_loop_case1
-
-#     jmp count_parts_case1
-
-# check_case1_result:
-#     cmp $4, %rax               # Check if exactly 4 parts
-#     je set_result_valid        # If so, valid syntax
-#     # Else, reset pointer and check next case
-#     movq %rcx, %rdi
-#     jmp check_case2
-
-# #--------------------------------------------
-# # Case 2: Simple assignment composed of 3 parts
-# #--------------------------------------------
-# check_case2:
-#     movq %rdi, %rcx            # Save the original pointer
-#     mov $0, %rax               # Part counter
-#     jmp count_parts_case2
-
-# count_parts_case2:
-#     cmpb $0, (%rdi)            # Check for null terminator
-#     je check_case3             # If end of string, check next case
-
-#     cmpb $32, (%rdi)           # Check for space ' '
-#     je skip_spaces_case2
-#     cmpb $9, (%rdi)            # Check for tab '\t'
-#     je skip_spaces_case2
-
-#     # Start of a part
-#     inc %rax                   # Increment part counter
-
-# scan_part_case2:
-#     cmpb $0, (%rdi)            # End of string?
-#     je check_case2_result
-#     cmpb $32, (%rdi)           # Space?
-#     je count_parts_case2
-#     cmpb $9, (%rdi)            # Tab?
-#     je count_parts_case2
-
-#     # Advance pointer
-#     inc %rdi
-#     jmp scan_part_case2
-
-# skip_spaces_case2:
-#     # Skip multiple spaces or tabs between parts
-# skip_space_loop_case2:
-#     inc %rdi
-#     cmpb $32, (%rdi)
-#     je skip_space_loop_case2
-#     cmpb $9, (%rdi)
-#     je skip_space_loop_case2
-
-#     jmp count_parts_case2
-
-# check_case2_result:
-#     cmp $3, %rax               # Check if exactly 3 parts
-#     je set_result_valid        # If so, valid syntax
-#     # Else, reset pointer and check next case
-#     movq %rcx, %rdi
-#     jmp check_case3
+//////////
+//////////
+//////////
+//////////
 
 #--------------------------------------------
 # Case 3: Function-like declaration
@@ -332,7 +339,6 @@ check_case3:
     movq %rsi, %rdi            # get the original pointer
 
     # Skip leading spaces and tabs before function name
-    # TODO: If found spaces as the first char then the name is empty
     movb $0, %r8b
     skip_spaces_case3:
         cmpb $32, (%rdi)
@@ -382,21 +388,6 @@ check_case3:
         jmp skip_spaces_case3
 
     after_paren_case3:
-        # Skip any spaces or tabs between function name and '('
-        # skip_spaces_before_paren_case3:
-        #     cmpb $32, -1(%rdi)   # Check previous character for space
-        #     jne check_paren_case3
-        #     dec %rdi
-        #     jmp skip_spaces_before_paren_case3
-
-        # check_paren_case3:
-        #     inc %rdi            # Move back to '('
-        #     cmpb $40, (%rdi)    # Ensure current char is '('
-        #     jne check_case4     # Not '(', invalid, check next case
-
-        # # Now, check for matching ')'
-        # inc %rdi                # Skip '('
-        # mov %rdi, %rbx          # Save pointer to content inside parentheses
 
         find_closing_paren_case3:
             cmpb $0, (%rdi)     # End of string?
