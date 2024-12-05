@@ -7,7 +7,7 @@
 # # \t\t = \t\t = \t \t=
 # #\t\t = \t \t\t\t = 
 # #= = =
-# command: .asciz "\t\t = \t \t\t\t =x"
+# command: .asciz "\t\t = \t \t\t\t = "
 # result: .byte 0
 
 .section .text
@@ -142,10 +142,10 @@ start_edge_case_count_blocks:
         je inc_rdi_case22
         jmp process_blocks_until_end
 
-    inc_rdi_case22:
-        movq $1, %rax
-        inc %rdi
-        jmp skip_spaces_case22
+        inc_rdi_case22:
+            movq $1, %rax
+            inc %rdi
+            jmp skip_spaces_case22
 
     process_blocks_until_end:
         cmpb $0, (%rdi)            # Check if the string is empty
@@ -160,12 +160,14 @@ start_edge_case_count_blocks:
         
         # cmpq $1, %r8 # The word ended with a space
         # je finished_proccessing_word_2 # Means that we encounter space or a group of spaces
-        #movb (%rdi), %r9b # Will hold the last char of this block
+        movb (%rdi), %r9b # Will hold the last char of this block
+
         inc %rdi
         jmp process_blocks_until_end
         finished_proccessing_word_2:
             inc %rax # The part counter
 
+            movb $0, %r9b
             #rax is the 3 blc, we need to check if it's '='
             cmpq $2, %rax # finished scanning 3 block, check if the last block is only a '='
             je check_third_equals_block
@@ -200,11 +202,18 @@ skip_spaces_for_counting_blocks:
 
         jmp finished_proccessing_word_2
 
+check_if_was_chars_before_last_spaces:
+    cmpb $0, %r9b
+    jne check_case3 # was chars, next case
+    jmp check_good_blocks
+
+
 check_process_blocks_end:
     # TODO : Allow the last forth' block to be spaces. 
     cmpq $1, %r8 # The entire input string ended with a space. 
-    je check_case3
+    je check_if_was_chars_before_last_spaces
 
+check_good_blocks:
     cmpq $4, %rax # check counted parts # TODO: Can be made with 3
     je set_result_valid
     jmp check_case3 # If found enough
