@@ -120,12 +120,45 @@ process_node:
     jmp check_ratio
 
 check_ratio:
-    movl %r10d, %eax    # %eax = ratio
-    mul %r11d
-    cmpl $0, %edx
-    jne not_geometric_in_search
+    # Check if ratio is zero (first time)
+    cmpl $0, %r10d
+    je first_time_ratio
+
+    # Existing ratio available
+    # Multiply ratio (%r10d) by previous data (%r11d) to predict current data
+    movl %r10d, %eax          # %eax = ratio
+    xorl %edx, %edx           # Clear %edx before multiplication
+    mull %r11d                # Unsigned multiply %eax * %r11d, result in %edx:%eax
+
+    # Check for multiplication overflow
+    testl %edx, %edx
+    jne not_geometric_in_search  # If overflow, not geometric
+
+    # Compare predicted current data with actual current data (%r12d)
     cmpl %eax, %r12d
-    jne not_geometric_in_search
+    jne not_geometric_in_search  # If not equal, not geometric
+
+    # Ratio matches; proceed
+    jmp advance_pointers
+
+first_time_ratio:
+    # Check for division by zero (previous data)
+    testl %r11d, %r11d
+    je not_geometric_in_search   # If zero, cannot divide
+
+    # Perform division to compute ratio
+    movl %r12d, %eax           # %eax = current data
+    xorl %edx, %edx            # Clear %edx before division
+    divl %r11d                 # Unsigned division: %eax = quotient, %edx = remainder
+
+    # Check if division was exact
+    testl %edx, %edx
+    jne not_geometric_in_search  # If remainder not zero, not geometric
+
+    # Store computed ratio
+    movl %eax, %r10d           # %r10d = ratio
+
+    # Proceed to next iteration
     jmp advance_pointers
 
 not_geometric_in_search:
