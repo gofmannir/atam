@@ -18,7 +18,7 @@ Node3:
 
 Node4:
     .quad Node3
-    .int 20
+    .int 40
     .quad 0
 
 node:
@@ -56,10 +56,6 @@ found_head:
     testq %rdi, %rdi
     jz always_possible
 
-    # -----------------------------------------
-    # Arithmetic Sequence Check
-    # -----------------------------------------
-
     # Initialize flags and variables
     movl $1, %ebx            # %ebx = arithmetic possible flag (1 = possible)
     movl $1, %ecx            # %ecx = geometric possible flag (1 = possible)
@@ -88,14 +84,23 @@ traverse_list:
     addl %r14d, %r14d        # %r14d = 2 x expected diff
     cmpl %r14d, %r15d        # check if  node->next->data - node->prev->data = 2 x expected diff
     jne not_arithmetic
-  
-    # Set next pointer to node->next->next
-    movq 12(%rsi), %rdi       # %rdi = node->next->next
-    cmpq $0, %rdi
-    je end_traverse           # If node->next->next is NULL, end traversal
+    jmp check_geometry
 
-    jmp process_node
-
+check_geometry:
+    movl 8(%rax), %r14d      # %r14d = node->prev->data
+    movl 8(%rsi), %r15d      # %r15d = node->next->data
+    movl %r10d, %eax       # %rax = expected ratio
+    xorq %rdx, %rdx          # %rdx = 0
+    mul %eax                 # %edx: %eax = ratio * ratio
+    cmpl $0, %edx
+    jne not_geometric
+    mul %r14d                # %edx: %eax = prev->data * ratio * ratio
+    cmpl $0, %edx
+    jne not_geometric
+    cmpl %eax, %r15d
+    jne not_geometric
+    jmp fix_pointers
+   
 process_node:
     # Load current data value
     movl 8(%rsi), %r11d       # %r11d = current data value
@@ -112,6 +117,19 @@ process_node:
     jne check_difference
     # If it's the first difference calculate, store it in r9d
     movl %r13d, %r9d            # %r9d = diff
+    jmp check_ratio
+
+check_ratio:
+    movl %r10d, %eax    # %eax = ratio
+    mul %r11d
+    cmpl $0, %edx
+    jne not_geometric_in_search
+    cmpl %eax, %r12d
+    jne not_geometric_in_search
+    jmp advance_pointers
+
+not_geometric_in_search:
+    movl $0, %ecx 
     jmp advance_pointers
 
 check_difference:
@@ -119,12 +137,25 @@ check_difference:
     # %r13d = current diff in iteration
     cmpl %r9d, %r13d
     je advance_pointers
-    jmp not_arithmetic
+    # not arithmetic
+    movl $0, %ebx 
+    jmp check_ratio
 
 not_arithmetic:
     # Differences not equal, arithmetic not possible
     movl $0, %ebx             # %ebx = arithmetic possible flag = 0
-    jmp advance_pointers
+    jmp check_geometry
+
+not_geometric:
+    movl $0, %ecx             # %ecx = geometry possible flag = 0
+    jmp fix_pointers
+
+fix_pointers:
+    # Set next pointer to node->next->next
+    movq 12(%rsi), %rdi       # %rdi = node->next->next
+    cmpq $0, %rdi
+    je end_traverse           # If node->next->next is NULL, end traversal
+    jmp process_node
 
 advance_pointers:
     # Advance the pointers
