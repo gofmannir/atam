@@ -47,10 +47,9 @@ find_head:
     jmp find_head
 
 found_head:
-    # rax and %rsi now points to the head node
+    # %rsi now points to the head node
     # %rsi = pointer to the current node (starting from head)
     # %rdi will be next node in iteration
-    # %rax = perminent pointer to head
 
     movq 12(%rsi), %rdi   # %rdi = head->next
     # if head->next is null there is only one node in list
@@ -70,17 +69,28 @@ found_head:
     # Start traversal
 traverse_list:
     # Check if current node is the node to change
-    cmpq %rsi, %r8
+    cmpq %rdi, %r8
     jne process_node
 
     # If current node is the node to change
     # Set current pointer to node->next
     movq 12(%r8), %rsi        # %rsi = node->next (offset 12)
+    # check if the node is last in the list
     cmpq $0, %rsi
     je end_traverse           # If node->next is NULL, end traversal
-
+   
+    # calculate node->next - node->prev and check if its equal to 2 x diff
+    movq 0(%r8), %rax        # %rax = node->prev
+    movl 8(%rax), %r14d      # %r14d = node->prev->data
+    movl 8(%rsi), %r15d      # %r15d = node->next->data
+    subl %r14d, %r15d        # %r15d = node->next->data - node->prev->data
+    movl %r9d, %r14d         # %r14d = expected diff
+    addl %r14d, %r14d        # %r14d = 2 x expected diff
+    cmpl %r14d, %r15d        # check if  node->next->data - node->prev->data = 2 x expected diff
+    jne not_arithmetic
+  
     # Set next pointer to node->next->next
-    movq 12(%rsi), %rdi       # %rsi = node->next->next
+    movq 12(%rsi), %rdi       # %rdi = node->next->next
     cmpq $0, %rdi
     je end_traverse           # If node->next->next is NULL, end traversal
 
@@ -95,13 +105,13 @@ process_node:
     # Compute difference for arithmetic progression
     movl %r11d, %edx            # %edx = current data
     movl %r12d, %r13d           # %r13d = next data
-    subl %edx, %r13d            # %r13d = diff
+    subl %edx, %r13d            # %r13d = next data - current data = diff
 
     # check if it's the first difference
     cmp $0, %r9d
     jne check_difference
     # If it's the first difference calculate, store it in r9d
-    movl %r12d, %r9d            # %r9d = diff
+    movl %r13d, %r9d            # %r9d = diff
     jmp advance_pointers
 
 check_difference:
@@ -109,13 +119,21 @@ check_difference:
     # %r13d = current diff in iteration
     cmpl %r9d, %r13d
     je advance_pointers
+    jmp not_arithmetic
+
+not_arithmetic:
     # Differences not equal, arithmetic not possible
     movl $0, %ebx             # %ebx = arithmetic possible flag = 0
+    jmp advance_pointers
 
 advance_pointers:
     # Advance the pointers
-    movq %rsi, %rdi           # %rdi = current node becomes previous node
     movq 12(%rsi), %rsi       # %rsi = current->next
+    testq %rsi, %rsi          # Check if current->next is NULL
+    jz end_traverse
+    movq 12(%rsi), %rdi       # %rdi = current->next->next
+    testq %rdi, %rdi          # Check if current->next->next is NULL
+    jz end_traverse
     jmp traverse_list
 
 end_traverse:
