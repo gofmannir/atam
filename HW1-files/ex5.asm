@@ -1,14 +1,14 @@
 .global _start
 
-.section .data
-#=====() =====() = =
-# = = = =
-# = = = = 
-# \t\t = \t\t = \t \t=
-#\t\t = \t \t\t\t = 
-#= = =
-command: .asciz "\t\t = \t \t\t\t =x"
-result: .byte 0
+# .section .data
+# #=====() =====() = =
+# # = = = =
+# # = = = = 
+# # \t\t = \t\t = \t \t=
+# #\t\t = \t \t\t\t = 
+# #= = =
+# command: .asciz "\t\t = \t \t\t\t =x"
+# result: .byte 0
 
 .section .text
 _start:
@@ -201,6 +201,7 @@ skip_spaces_for_counting_blocks:
         jmp finished_proccessing_word_2
 
 check_process_blocks_end:
+    # TODO : Allow the last forth' block to be spaces. 
     cmpq $1, %r8 # The entire input string ended with a space. 
     je check_case3
 

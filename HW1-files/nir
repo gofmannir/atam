@@ -57,3 +57,13 @@
 /home/student/Desktop/atam/HW1-files/ex5.asm tested with test78: FAIL ' \t\t = \t\t = \t \t='
 
 # when 3 blocks, check if the last char of the second block is '='
+
+
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test119: FAIL ' == '       # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test141: FAIL '=)a= '   # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test157: FAIL '=== ('   # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test159: FAIL ' )== '      # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test178: FAIL '== ==a'  # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test61: FAIL '= = ='       # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test74: FAIL '\t\t = \t \t\t\t = ' # 4 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test75: FAIL '= = ='       # 3 blocks
