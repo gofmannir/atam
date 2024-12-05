@@ -99,17 +99,18 @@ advance_pointers_arith:
 
 arith_node_to_change_next:
     # Node to change is the next node
-    # Need to check if (next_next data - current data) == 2 * stored difference
+    # Need to check if (node->next->data - node->prev->data) == 2 * stored difference
     # Get current data
-    movl 8(%rsi), %r11d        # %r11d = current data
+    movl 8(%rsi), %r11d        # %r11d = node->prev
 
     # Get next_next node
     movq 12(%rdi), %rax        # %rax = node->next
     cmpq $0, %rax
     je advance_pointers_arith  # If next->next is NULL, can't compute, skip
 
-    movl 8(%rax), %r12d        # %r12d = next_next data
+    movl 8(%rax), %r12d        # %r12d = node->next data
 
+    xorq %rax, %rax            
     # Compute diff: diff = next_next data - current data
     movl %r12d, %eax           # %eax = next_next data
     subl %r11d, %eax           # %eax = current diff
@@ -118,11 +119,11 @@ arith_node_to_change_next:
     je calculate_expected_diff
 
     # Expected diff: expected_diff = 2 * stored difference
-    movl %r10d, %edx           # %edx = stored difference
-    addl %r10d, %edx           # %edx = 2 * stored difference
+    movq %r10, %rdx           # %edx = stored difference
+    addq %r10, %rdx           # %edx = 2 * stored difference
 
     # Compare diffs
-    cmpl %edx, %eax
+    cmpq %rdx, %rax
     je skip_node_arith_next    # Can proceed, skip the node to change
     # Cannot form arithmetic progression by changing the node
     movl $0, %ebx              # %ebx = arithmetic possible flag = 0

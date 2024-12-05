@@ -3,7 +3,7 @@
 .section .text
 
   mov $result, %rax
-  cmpl $1, (%rax)
+  cmpl $0, (%rax)
   jne bad_exit
 
   movq $60, %rax
@@ -18,16 +18,20 @@ bad_exit:
 .section .data
 Node1: 
 	.quad 0
-	.int 10
+	.int 1
 	.quad Node2
 Node2: 
 	.quad Node1
-	.int 20
+	.int 4294967294
 	.quad Node3
 Node3: 
 	.quad Node2
-	.int 30
+	.int 4
+	.quad Node4
+Node4: 
+	.quad Node3
+	.int 4294967288
 	.quad 0
 
-node: .quad Node2
+node: .quad Node3
 result: .byte 0

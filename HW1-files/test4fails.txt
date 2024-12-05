@@ -1,8 +1,9 @@
 /home/student/atam/HW1-files/ex4.asm tested with test11: FAIL : [1, 3336423526, 3] pos 1
 /home/student/atam/HW1-files/ex4.asm tested with test113: FAIL : [3184383222, 707514478, 3183416786, 3182933568] pos 1
 /home/student/atam/HW1-files/ex4.asm tested with test124: FAIL : [19408388, 1606009061, 19165196, 19043600, 18922004, 18800408, 18678812, 18557216] pos 1
-/home/student/atam/HW1-files/ex4.asm tested with test126: FAIL 
-/home/student/atam/HW1-files/ex4.asm tested with test14: FAIL : [1, 2, 3] pos 1
+/home/student/atam/HW1-files/ex4.asm tested with test126: FAIL
+/home/student/atam/HW1-files/ex4.asm tested with test130: FAIL
+/home/student/atam/HW1-files/ex4.asm tested with test14: FAIL
 /home/student/atam/HW1-files/ex4.asm tested with test144: FAIL
 /home/student/atam/HW1-files/ex4.asm tested with test16: FAIL
 /home/student/atam/HW1-files/ex4.asm tested with test23: FAIL
@@ -11,6 +12,7 @@
 /home/student/atam/HW1-files/ex4.asm tested with test31: FAIL
 /home/student/atam/HW1-files/ex4.asm tested with test32: FAIL
 /home/student/atam/HW1-files/ex4.asm tested with test38: FAIL
+/home/student/atam/HW1-files/ex4.asm tested with test39: FAIL
 /home/student/atam/HW1-files/ex4.asm tested with test50: FAIL
 /home/student/atam/HW1-files/ex4.asm tested with test51: FAIL
 /home/student/atam/HW1-files/ex4.asm tested with test52: FAIL
@@ -19,5 +21,3 @@
 /home/student/atam/HW1-files/ex4.asm tested with test59: FAIL
 /home/student/atam/HW1-files/ex4.asm tested with test61: FAIL
 /home/student/atam/HW1-files/ex4.asm tested with test72: FAIL
-/home/student/atam/HW1-files/ex4.asm tested with test81: FAIL
-/home/student/atam/HW1-files/ex4.asm tested with test85: FAIL
