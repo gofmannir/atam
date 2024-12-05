@@ -1,237 +1,336 @@
 .global _start
 
-.section .data
- Node1:
-    .quad 0
-    .int 5
-    .quad Node2
-
- Node2:
-    .quad Node1
-    .int 10
-    .quad Node3
-
-Node3:
-    .quad Node2
-    .int 25
-    .quad Node4
-
-Node4:
-    .quad Node3
-    .int 40
-    .quad 0
-
-node:
-    .quad Node3
-
-Result:
-    .byte 0
-
 .section .text
 _start:
-  # Load the address of 'node' into %rdi
-    movq node(%rip), %rdi      # %rdi = temp pointer to the node to change
+   # Load the address of 'node' into %rdi
+    movq node(%rip), %rdi      # %rdi = pointer to the node to change
 
     # Save the pointer to the node to change
-    movq %rdi, %r8              # %r8 = perminent pointer to the node to change
+    movq %rdi, %r8             # %r8 = permanent pointer to the node to change
 
     # Initialize %rsi to the node to change
     movq %rdi, %rsi
 
+    # If empty list, both possible
+    testq %rsi, %rsi
+    je always_possible
+
     # Find the head of the list by traversing prev pointers
 find_head:
-    movq 0(%rsi), %rax          # %rax = current->prev (offset 0)
+    movq 0(%rsi), %rax         # %rax = current->prev (offset 0)
     cmpq $0, %rax
-    je found_head               # If prev is NULL, we've found the head
-    movq %rax, %rsi             # Move to prev node
+    je found_head              # If prev is NULL, we've found the head
+    movq %rax, %rsi            # Move to prev node
     jmp find_head
 
 found_head:
     # %rsi now points to the head node
-    # %rsi = pointer to the current node (starting from head)
-    # %rdi will be next node in iteration
+    # Save head pointer for later use
+    movq %rsi, %r9             # %r9 = head node
 
-    movq 12(%rsi), %rdi   # %rdi = head->next
-    # if head->next is null there is only one node in list
-    testq %rdi, %rdi
-    jz always_possible
+    # ---------------------------------------
+    # Arithmetic Progression Check Loop
+    # ---------------------------------------
 
     # Initialize flags and variables
-    movl $1, %ebx            # %ebx = arithmetic possible flag (1 = possible)
-    movl $1, %ecx            # %ecx = geometric possible flag (1 = possible)
-    movl $0, %r9d            # %r9d = diff
-    movl $0, %r10d           # %r10d = ratio
-    
-    # Start traversal
-traverse_list:
+    movl $1, %ebx              # %ebx = arithmetic possible flag (1 = possible)
+    movl $0, %r10d             # %r10d = stored difference (initialize to 0)
+    movl $0, %r15d             # %r15d = flag if diff already calculated (1 if yes)
+
+    # Set up pointers for traversal
+    # If empty list, both possible
+    testq %rsi, %rsi
+    je always_possible
+
+    movq 12(%rsi), %rdi        # %rdi = next node
+
+    # If empty list, both possible
+    testq %rsi, %rsi
+    je always_possible
+
+    # If there's only one node, both possible
+    testq %rdi, %rdi
+    je always_possible
+
+arithmetic_loop:
+    # Check if we've reached the end of the list
+    cmpq $0, %rdi
+    je arithmetic_done
+
     # Check if current node is the node to change
+    # this case happens only if rsi us the node before rdi
+    # this case happens only if the node is first
+    cmpq %rsi, %r8
+    je advance_pointers_arith
+
+    # Check if next node is the node to change
     cmpq %rdi, %r8
-    jne process_node
+    je arith_node_to_change_next
 
-    # If current node is the node to change
-    # Set current pointer to node->next
-    movq 12(%r8), %rsi        # %rsi = node->next (offset 12)
-    # check if the node is last in the list
-    cmpq $0, %rsi
-    je end_traverse           # If node->next is NULL, end traversal
-   
-    # calculate node->next - node->prev and check if its equal to 2 x diff
-    movq 0(%r8), %rax        # %rax = node->prev
-    movl 8(%rax), %r14d      # %r14d = node->prev->data
-    movl 8(%rsi), %r15d      # %r15d = node->next->data
-    subl %r14d, %r15d        # %r15d = node->next->data - node->prev->data
-    movl %r9d, %r14d         # %r14d = expected diff
-    addl %r14d, %r14d        # %r14d = 2 x expected diff
-    cmpl %r14d, %r15d        # check if  node->next->data - node->prev->data = 2 x expected diff
-    jne not_arithmetic
-    jmp check_geometry
+    # Load current and next data values
+    movl 8(%rsi), %r11d        # %r11d = current data
+    movl 8(%rdi), %r12d        # %r12d = next data
 
-check_geometry:
-    movl 8(%rax), %r14d      # %r14d = node->prev->data
-    movl 8(%rsi), %r15d      # %r15d = node->next->data
-    movl %r10d, %eax       # %rax = expected ratio
-    xorq %rdx, %rdx          # %rdx = 0
-    mul %eax                 # %edx: %eax = ratio * ratio
-    cmpl $0, %edx
-    jne not_geometric
-    mul %r14d                # %edx: %eax = prev->data * ratio * ratio
-    cmpl $0, %edx
-    jne not_geometric
-    cmpl %eax, %r15d
-    jne not_geometric
-    jmp fix_pointers
-   
-process_node:
-    # Load current data value
-    movl 8(%rsi), %r11d       # %r11d = current data value
-    # Load next data value
-    movl 8(%rdi), %r12d        # %r12d = next data value
+    # Compute difference: diff = next data - current data
+    movl %r12d, %eax           # %eax = next data
+    subl %r11d, %eax           # %eax = diff
 
-    # Compute difference for arithmetic progression
-    movl %r11d, %edx            # %edx = current data
-    movl %r12d, %r13d           # %r13d = next data
-    subl %edx, %r13d            # %r13d = next data - current data = diff
+    # Check if it's the first difference
+    cmpl $0, %r15d
+    jne check_arith_diff
+    # First difference; store it
+    movl %eax, %r10d           # %r10d = stored difference
+    movl $1, %r15d             # change flag to 1 to indicate diff calculate
+    jmp advance_pointers_arith
 
-    # check if it's the first difference
-    cmp $0, %r9d
-    jne check_difference
-    # If it's the first difference calculate, store it in r9d
-    movl %r13d, %r9d            # %r9d = diff
-    jmp check_ratio
+check_arith_diff:
+    # Compare current diff (%eax) with stored diff (%r10d)
+    cmpl %r10d, %eax
+    je advance_pointers_arith
+    # Differences not equal; arithmetic progression not possible
+    movl $0, %ebx              # %ebx = arithmetic possible flag = 0
+    jmp arithmetic_done
 
-check_ratio:
-    # Check if ratio is zero (first time)
-    cmpl $0, %r10d
-    je first_time_ratio
+advance_pointers_arith:
+    # Advance pointers
+    movq %rdi, %rsi            # %rsi = next node
+    movq 12(%rsi), %rdi        # %rdi = current->next
+    jmp arithmetic_loop
 
-    # Existing ratio available
-    # Multiply ratio (%r10d) by previous data (%r11d) to predict current data
-    movl %r10d, %eax          # %eax = ratio
-    xorl %edx, %edx           # Clear %edx before multiplication
-    mull %r11d                # Unsigned multiply %eax * %r11d, result in %edx:%eax
+arith_node_to_change_next:
+    # Node to change is the next node
+    # Need to check if (next_next data - current data) == 2 * stored difference
+    # Get current data
+    movl 8(%rsi), %r11d        # %r11d = current data
+
+    # Get next_next node
+    movq 12(%rdi), %rax        # %rax = node->next
+    cmpq $0, %rax
+    je advance_pointers_arith  # If next->next is NULL, can't compute, skip
+
+    movl 8(%rax), %r12d        # %r12d = next_next data
+
+    # Compute diff: diff = next_next data - current data
+    movl %r12d, %eax           # %eax = next_next data
+    subl %r11d, %eax           # %eax = current diff
+
+    cmpl $0, %r15d             # check if diff is already calculated
+    je calculate_expected_diff
+
+    # Expected diff: expected_diff = 2 * stored difference
+    movl %r10d, %edx           # %edx = stored difference
+    addl %r10d, %edx           # %edx = 2 * stored difference
+
+    # Compare diffs
+    cmpl %edx, %eax
+    je skip_node_arith_next    # Can proceed, skip the node to change
+    # Cannot form arithmetic progression by changing the node
+    movl $0, %ebx              # %ebx = arithmetic possible flag = 0
+    jmp arithmetic_done
+
+calculate_expected_diff:
+    movl $2, %r12d
+    divl %r12d
+    # Check if division is exact
+    testl %edx, %edx
+    jne arith_not_possible
+    movl %eax, %r10d
+    movl $1, %r15d
+    jmp advance_pointers_arith
+
+skip_node_arith_next:
+    # Advance pointers
+    movq 12(%rdi), %rsi        # %rsi = node->next
+    movq 12(%rsi), %rdi        # %rdi = next node's next
+    jmp arithmetic_loop
+
+arith_not_possible:
+    movl $0, %ebx              # %ebx = arithmetic possible flag = 0
+    jmp arithmetic_done
+
+arithmetic_done:
+
+    # ---------------------------------------
+    # Geometric Progression Check Loop
+    # ---------------------------------------
+
+    # Initialize flags and variables
+    movl $1, %ecx              # %ecx = geometric possible flag (1 = possible)
+    movl $0, %r13d             # %r13d = stored ratio (initialize to 0)
+    movl $0, %r15d             # %r15d = flag if ratio already calculated (1 if yes)
+
+    # Restore head pointer
+    movq %r9, %rsi             # %rsi = head node
+    movq 12(%rsi), %rdi        # %rdi = next node
+
+    # If there's only one node, progression is always possible
+    testq %rdi, %rdi
+    je always_possible
+
+geometric_loop:
+    # Check if we've reached the end of the list
+    cmpq $0, %rdi
+    je geometric_done
+
+    # Check if current node is the node to change
+    # this case happens only if rsi us the node before rdi
+    # this case happens only if the node is first
+    cmpq %rsi, %r8
+    je advance_pointers_geom
+
+    # Check if next node is the node to change
+    cmpq %rdi, %r8
+    je geom_node_to_change_next
+
+    # Load current and next data values
+    movl 8(%rsi), %r11d        # %r11d = current data
+    movl 8(%rdi), %r12d        # %r12d = next data
+
+    # Check if current data is zero to avoid division by zero
+    testl %r11d, %r11d
+    je geom_not_possible
+
+    # Compute ratio: ratio = next data / current data
+    movl %r12d, %eax           # %eax = next data
+    xorl %edx, %edx            # Clear %edx
+    divl %r11d                 # Unsigned division
+
+    # Check if division is exact
+    testl %edx, %edx
+    jne geom_not_possible
+
+    # %eax now contains the ratio
+
+    # Check if it's the first ratio
+    cmpl $0, %r15d
+    jne check_geom_ratio
+    # First ratio; store it
+    movl %eax, %r13d           # %r13d = stored ratio
+    movl $1, %r15d             # update flag
+    jmp advance_pointers_geom
+
+check_geom_ratio:
+    # Compare current ratio (%eax) with stored ratio (%r13d)
+    cmpl %r13d, %eax
+    je advance_pointers_geom
+    # Ratios not equal; geometric progression not possible
+    movl $0, %ecx              # %ecx = geometric possible flag = 0
+    jmp geometric_done
+
+advance_pointers_geom:
+    # Advance pointers
+    movq %rdi, %rsi            # %rsi = next node
+    movq 12(%rsi), %rdi        # %rdi = current->next
+    jmp geometric_loop
+
+geom_node_to_change_next:
+    # Node to change is the next node
+    # Need to check if (next_next data) / (current data) == stored ratio * stored ratio
+    # Get current data
+    movl 8(%rsi), %r11d        # %r11d = current data
+
+    # Get next_next node
+    movq 12(%rdi), %rax        # %rax = next->next
+    cmpq $0, %rax
+    je advance_pointers_geom   # If next->next is NULL, can't compute, skip
+
+    movl 8(%rax), %r12d        # %r12d = node->next->data
+
+    cmpl $0, %r15d             # check if ratio is already calculated
+    je calculate_expected_ratio
+
+    # Check if current data is zero to avoid division by zero
+    testl %r11d, %r11d
+    je geom_not_possible
+
+    # Compute expected ratio squared: expected_ratio_sq = stored ratio * stored ratio
+    movl %r13d, %eax           # %eax = stored ratio
+    xorl %edx, %edx            # Clear %edx
+    mull %eax                  # %edx:%eax = stored ratio squared
+    movl %eax,%r14d            # %r14d = ratio * ratio
 
     # Check for multiplication overflow
     testl %edx, %edx
-    jne not_geometric_in_search  # If overflow, not geometric
+    jne geom_not_possible
 
-    # Compare predicted current data with actual current data (%r12d)
-    cmpl %eax, %r12d
-    jne not_geometric_in_search  # If not equal, not geometric
-
-    # Ratio matches; proceed
-    jmp advance_pointers
-
-first_time_ratio:
-    # Check for division by zero (previous data)
-    testl %r11d, %r11d
-    je not_geometric_in_search   # If zero, cannot divide
-
-    # Perform division to compute ratio
-    movl %r12d, %eax           # %eax = current data
-    xorl %edx, %edx            # Clear %edx before division
+    # Compute ratio: ratio = next_next data / current data
+    xorq %rax, %rax            # clear %rax
+    movl %r12d, %eax           # %ecx = next_next data
+    xorl %edx, %edx            # Clear %edx
     divl %r11d                 # Unsigned division: %eax = quotient, %edx = remainder
 
-    # Check if division was exact
+    # Check if division is exact
     testl %edx, %edx
-    jne not_geometric_in_search  # If remainder not zero, not geometric
+    jne geom_not_possible
 
-    # Store computed ratio
-    movl %eax, %r10d           # %r10d = ratio
+    # Compare computed ratio with expected_ratio_sq
+    cmpl %eax, %r14d            # Since %eax is the division and r14d is ratio * ratio
+    je skip_node_geom_next     # Can proceed, skip the node to change
+    # Cannot form geometric progression by changing the node
+    movl $0, %ecx              # %ecx = geometric possible flag = 0
+    jmp geometric_done
 
-    # Proceed to next iteration
-    jmp advance_pointers
+calculate_expected_ratio:
+    movq 12(%rax), %r11       # r11 is node->next->next
+    cmpq $0, %r11
+    je advance_pointers_geom
+    movl 8(%r11), %eax      # eax is node->next->next->data
+    # r12 is %r12d = node->next->data
+    divl %r12d
+    # Check if division is exact
+    testl %edx, %edx
+    jne geom_not_possible
+    movl %eax, %r13d
+    movl $1, %r15d
+    jmp advance_pointers_geom
 
-not_geometric_in_search:
-    movl $0, %ecx 
-    jmp advance_pointers
+skip_node_geom_next:
+    # Advance pointers
+    movq 12(%rdi), %rsi        # %rsi = node->next
+    movq 12(%rsi), %rdi        # %rdi = next node's next
+    jmp geometric_loop
 
-check_difference:
-    # %r9d = previous diff
-    # %r13d = current diff in iteration
-    cmpl %r9d, %r13d
-    je advance_pointers
-    # not arithmetic
-    movl $0, %ebx 
-    jmp check_ratio
+geom_not_possible:
+    movl $0, %ecx              # %ecx = geometric possible flag = 0
+    jmp geometric_done
 
-not_arithmetic:
-    # Differences not equal, arithmetic not possible
-    movl $0, %ebx             # %ebx = arithmetic possible flag = 0
-    jmp check_geometry
+geometric_done:
 
-not_geometric:
-    movl $0, %ecx             # %ecx = geometry possible flag = 0
-    jmp fix_pointers
+    # ---------------------------------------
+    # Determine and Set Result
+    # ---------------------------------------
 
-fix_pointers:
-    # Set next pointer to node->next->next
-    movq 12(%rsi), %rdi       # %rdi = node->next->next
-    cmpq $0, %rdi
-    je end_traverse           # If node->next->next is NULL, end traversal
-    jmp process_node
+    # Check arithmetic and geometric possible flags
+    xorq %rax, %rax   # %eax = 0 (neither progression possible)           
 
-advance_pointers:
-    # Advance the pointers
-    movq 12(%rsi), %rsi       # %rsi = current->next
-    testq %rsi, %rsi          # Check if current->next is NULL
-    jz end_traverse
-    movq 12(%rsi), %rdi       # %rdi = current->next->next
-    testq %rdi, %rdi          # Check if current->next->next is NULL
-    jz end_traverse
-    jmp traverse_list
+    # Check arithmetic possible flag (%ebx)
+    cmpl $1, %ebx
+    jne check_geom_flag
+    movl $1, %eax              # %eax = 1 (arithmetic progression possible)
 
-end_traverse:
-    # Set Result
-    cmpl $1, %ebx              # Check arithmetic possible flag
-    je arithmetic_possible
-    # if arithmetic isn't possible, check geometric
+check_geom_flag:
     cmpl $1, %ecx
-    jne never_possible
-    # if possible, set Result to 2
-    movb $2, Result(%rip)
-    jmp done_HW1
+    jne set_result
+    # Geometric progression possible
+    cmpl $1, %ebx
+    jne geom_only
+    movl $3, %eax              # %eax = 3 (both progressions possible)
+    jmp set_result
 
-arithmetic_possible:
-    # check geometric
-    cmpl $1, %ecx
-    je always_possible
-    movb $1, Result(%rip)    # only arithmetic
+geom_only:
+    movl $2, %eax              # %eax = 2 (only geometric progression possible)
+
+set_result:
+    movb %al, result(%rip)     # Store Result
     jmp done_HW1
 
 always_possible:
-    movb $3, Result(%rip)
-    jmp done_HW1
-
-never_possible:
-    movb $0, Result(%rip)
+    # For lists with one or no nodes, both progressions are possible
+    movb $3, result(%rip)      # Result = 3 (both possible)
     jmp done_HW1
 
 done_HW1:
-    # Exit the program
-    movq $60, %rax            # syscall: exit
-    xor %rdi, %rdi            # status 0
-    syscall
 
 /*
-as ex4.asm -o ex4.o && ld ex4.o -o ex4 && ./ex4
-*/
+as ex4t.asm ex4sample_test -o my_test.o && ld my_test.o -o ex4t && ./ex4t
+ */
