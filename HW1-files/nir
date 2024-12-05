@@ -1,0 +1,122 @@
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test119: FAIL ' == '
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test141: FAIL '=)a= '
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test149: FAIL func
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test157: FAIL '=== ('
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test158: FAIL '=(() '
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test159: FAIL ' )== '
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test171: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test174: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test178: FAIL '== ==a'
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test179: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test32: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test36: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test37: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test39: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test4: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test61: FAIL '= = ='
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test74: FAIL '\t\t = \t \t\t\t = '
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test75: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test76: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test77: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test78: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test92: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test93: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test94: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test95: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test96: FAIL
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test97: FAIL
+
+====
+
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test119: FAIL ' == '
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test141: FAIL '=)a= '
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test157: FAIL '=== ('
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test159: FAIL ' )== '
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test178: FAIL '== ==a'
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test30: FAIL ' func ( param )'
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test61: FAIL '= = ='
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test74: FAIL '\t\t = \t \t\t\t = '
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test75: FAIL '= = ='
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test76: FAIL '\t= = ='
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test77: FAIL ' \t\t = \t\t = \t \t='
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test78: FAIL ' \t\t = \t\t = \t \t='
+
+=====
+
+
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test119: FAIL ' == '    # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test141: FAIL '=)a= '   # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test157: FAIL '=== ('   # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test159: FAIL ' )== '   # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test178: FAIL '== ==a'  # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test61: FAIL '= = ='    # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test74: FAIL '\t\t = \t \t\t\t = '
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test75: FAIL '= = ='
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test76: FAIL '\t= = ='
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test77: FAIL ' \t\t = \t\t = \t \t='
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test78: FAIL ' \t\t = \t\t = \t \t='
+
+# when 3 blocks, check if the last char of the second block is '='
+
+
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test119: FAIL ' == '       # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test141: FAIL '=)a= '   # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test157: FAIL '=== ('   # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test159: FAIL ' )== '      # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test178: FAIL '== ==a'  # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test61: FAIL '= = ='       # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test74: FAIL '\t\t = \t \t\t\t = ' # 4 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test75: FAIL '= = ='       # 3 blocks
+
+# =================================
+
+
+
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test119: FAIL ' == '       # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test141: FAIL '=)a= '   # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test157: FAIL '=== ('   # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test159: FAIL ' )== '      # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test178: FAIL '== ==a'  # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test61: FAIL '= = ='       # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test75: FAIL '= = ='       # 3 blocks
+
+
+====
+
+
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test141: FAIL '=)a= '   # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test157: FAIL '=== ('   # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test178: FAIL '== ==a'  # 2 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test61: FAIL '= = ='       # 3 blocks
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test75: FAIL '= = ='       # 3 blocks
+
+=======
+
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test119: FAIL ' == '
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test141: FAIL '=)a= ' 
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test157: FAIL '=== ('
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test159: FAIL ' )== '
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test178: FAIL '== ==a'
+
+==========
+
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test141: FAIL '=)a= ' 
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test157: FAIL '=== ('
+/home/student/Desktop/atam/HW1-files/ex5.asm tested with test178: FAIL '== ==a'
+
+
+========
+
+/home/student/Desktop/atam/HW1-files/ex5.asm ALL PASSED
+
+
+
+
+
+
+
+
+
+
+
+
