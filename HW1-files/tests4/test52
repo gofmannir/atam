@@ -16,7 +16,7 @@ bad_exit:
   syscall
 
 .section .data
-__ExpectedResult: .byte 0
+__ExpectedResult: .byte 3
 __Garbage_463371274: .byte 135, 13, 21, 197, 35, 143, 243, 50, 121
 result: .byte 161
 __Garbage_168266041: .byte 243, 137, 213, 117, 127, 194, 209
@@ -25,7 +25,7 @@ __Nodes:
 .int 3
 .quad __Nodes + 40
 .quad __Nodes + 40
-.int 16
+.int 15
 .quad 0
 .quad __Nodes + 0
 .int 1258330534
@@ -35,5 +35,5 @@ node: .quad __Nodes + 40
 __Garbage_725224844: .byte 2, 227, 154, 195, 114
 
 
-# Array: [3, 1258330534, 16]
+# Array: [3, 1258330534, 15]
 # Position: 1

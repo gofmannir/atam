@@ -1,0 +1,172 @@
+.global _start
+
+.section .text
+
+  movq root, %rdi
+  xor %r8, %r8
+  movl __ExpectedArraySize, %r8d
+  movq $__ExpectedArray, %r9
+  movq $0, %r10
+  call rec
+
+  cmp %r10, %r8
+  jne bad_exit
+  
+  movq $60, %rax
+  movq $0, %rdi
+  syscall
+
+bad_exit:
+  movq $60, %rax
+  movq $1, %rdi
+  syscall
+
+rec:
+  pushq %rdi
+  movq (%rdi), %r11
+  cmp $0, %r11
+  je skip_left
+  movq %r11, %rdi
+  call rec
+  movq (%rsp), %rdi
+skip_left:
+  cmpq %r8, %r10
+  je bad_exit
+  movl 8(%rdi), %eax
+  movl (%r9, %r10, 4), %edx
+  cmpl %eax, %edx
+  jne bad_exit
+  inc %r10
+
+  movq 12(%rdi), %r11
+  cmp $0, %r11
+  je skip_right
+  movq %r11, %rdi
+  call rec
+skip_right:
+  popq %rdi
+  ret
+
+
+.section .data
+__ExpectedArray: .int -2046697925, -1680671298, -1626788945, -1447444537, -1439920496, -1315729486, -1223035233, -1101228719, -1092065561, -1073255274, -982506121, -743425508, -707489794, -693514832, -420918732, -259606499, -251275515, 43737779, 81873419, 116867271, 226144997, 353441553, 376503407, 569299682, 573028565, 680663567, 683138922, 826561718, 937346564, 1000831540, 1051969491, 1157384118, 1269219375, 1414518401, 1465443276, 1811666519, 2072792157
+__Garbage_25676059: .byte 16, 123, 32, 197, 100, 143, 190, 0
+__ExpectedArraySize: .int 37
+__Garbage_619006895: .byte 240, 169, 158, 90, 48, 73, 156, 82
+__Nodes:
+.quad __Nodes + 700
+.int 376503407
+.quad 0
+.quad __Nodes + 420
+.int 1051969491
+.quad __Nodes + 480
+.quad __Nodes + 340
+.int 683138922
+.quad 0
+.quad __Nodes + 380
+.int -1073255274
+.quad 0
+.quad __Nodes + 140
+.int -1315729486
+.quad __Nodes + 120
+.quad __Nodes + 560
+.int 1269219375
+.quad __Nodes + 440
+.quad 0
+.int -1223035233
+.quad 0
+.quad __Nodes + 220
+.int -1439920496
+.quad 0
+.quad __Nodes + 620
+.int 43737779
+.quad __Nodes + 320
+.quad 0
+.int 226144997
+.quad 0
+.quad 0
+.int -251275515
+.quad 0
+.quad __Nodes + 300
+.int -1447444537
+.quad 0
+.quad 0
+.int -420918732
+.quad 0
+.quad 0
+.int 1465443276
+.quad 0
+.quad 0
+.int 81873419
+.quad 0
+.quad 0
+.int -1626788945
+.quad 0
+.quad __Nodes + 280
+.int 116867271
+.quad __Nodes + 360
+.quad 0
+.int 680663567
+.quad 0
+.quad __Nodes + 0
+.int 569299682
+.quad 0
+.quad __Nodes + 640
+.int -1101228719
+.quad 0
+.quad __Nodes + 160
+.int 573028565
+.quad __Nodes + 100
+.quad 0
+.int 1000831540
+.quad 0
+.quad 0
+.int 1414518401
+.quad __Nodes + 260
+.quad __Nodes + 60
+.int -982506121
+.quad __Nodes + 400
+.quad 0
+.int 1157384118
+.quad 0
+.quad 0
+.int 2072792157
+.quad 0
+.quad __Nodes + 460
+.int 1811666519
+.quad __Nodes + 500
+.quad 0
+.int -2046697925
+.quad 0
+.quad __Nodes + 600
+.int 937346564
+.quad __Nodes + 20
+.quad __Nodes + 680
+.int -259606499
+.quad __Nodes + 200
+.quad __Nodes + 40
+.int 826561718
+.quad 0
+.quad __Nodes + 660
+.int -707489794
+.quad __Nodes + 580
+.quad __Nodes + 540
+.int -1680671298
+.quad __Nodes + 80
+.quad 0
+.int -743425508
+.quad 0
+.quad 0
+.int -693514832
+.quad __Nodes + 240
+.quad __Nodes + 180
+.int 353441553
+.quad 0
+__Garbage_186197295: .byte 162, 96, 123
+root:
+.quad __Nodes + 520
+__Garbage_780822622: .byte 161, 241
+node:
+.quad -1813867765
+.int -1092065561
+.quad -1514779863

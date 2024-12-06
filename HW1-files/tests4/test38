@@ -25,18 +25,18 @@ __Nodes:
 .int 1500658661
 .quad __Nodes + 20
 .quad __Nodes + 0
-.int 111
+.int 133
 .quad __Nodes + 40
 .quad __Nodes + 20
-.int 100
+.int 144
 .quad 0
 .quad 0
-.int 133
+.int 111
 .quad __Nodes + 0
 __Garbage_329835913: .byte 187, 88, 28, 57, 235, 117, 77, 99, 212
 node: .quad __Nodes + 0
 __Garbage_945478831: .byte 177, 66, 69, 40, 112, 190, 118, 232, 230
 
 
-# Array: [133, 1500658661, 111, 100]
+# Array: [111, 1500658661, 133, 144]
 # Position: 1

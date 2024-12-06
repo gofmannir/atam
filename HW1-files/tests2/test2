@@ -1,0 +1,50 @@
+.global _start
+
+.section .text
+
+  movq $__Output, %r8
+  movq $__ExpectedOutput, %r9
+  movb Type, %al
+  movzx %al, %rax
+  xorq %rcx, %rcx
+  movl Length, %ecx
+  mul %rcx
+  movq $0, %rdi
+loop_HW1_test:
+  cmp %rdi, %rax
+  je loop_end_HW1_test
+  movb (%r8, %rdi), %dl
+  movb (%r9, %rdi), %r10b
+  cmp %dl, %r10b
+  jne bad_exit
+  inc %rdi
+  jmp loop_HW1_test
+
+loop_end_HW1_test:
+  
+  movq $60, %rax
+  movq $0, %rdi
+  syscall
+
+bad_exit:
+  movq $60, %rax
+  movq $1, %rdi
+  syscall
+
+.section .data
+__Input: .byte 0
+__Garbage_578398006: .byte 78
+__Output: .byte 0
+__Garbage_252903855: .byte 214, 250, 192, 113, 127, 157, 160, 14, 54
+__ExpectedOutput: .byte 0
+__Garbage_839908743: .byte 100, 162, 116, 76, 18, 100, 224, 24
+Type: .byte 10
+__Garbage_878887768: .byte 183, 74, 84, 202, 76, 236
+Length: .int 0
+__Garbage_506181147: .byte 150, 104
+Address: .quad __Input
+__Garbage_471910472: .byte 223, 117, 254, 161, 5
+Adrress: .quad __Input
+__Garbage_334579145: .byte 42, 196, 183, 18, 181
+LittleEndianResult: .quad __Output
+__Garbage_636527502: .byte 139, 237, 226, 230, 27, 163, 134, 158, 88, 248

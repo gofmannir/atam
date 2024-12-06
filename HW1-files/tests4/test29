@@ -16,7 +16,7 @@ bad_exit:
   syscall
 
 .section .data
-__ExpectedResult: .byte 1
+__ExpectedResult: .byte 3
 __Garbage_288934989: .byte 247, 34
 result: .byte 113
 __Garbage_941234441: .byte 162, 164, 98, 124

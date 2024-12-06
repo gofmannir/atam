@@ -1,0 +1,94 @@
+.global _start
+
+.section .text
+
+  movq root, %rdi
+  xor %r8, %r8
+  movl __ExpectedArraySize, %r8d
+  movq $__ExpectedArray, %r9
+  movq $0, %r10
+  call rec
+
+  cmp %r10, %r8
+  jne bad_exit
+  
+  movq $60, %rax
+  movq $0, %rdi
+  syscall
+
+bad_exit:
+  movq $60, %rax
+  movq $1, %rdi
+  syscall
+
+rec:
+  pushq %rdi
+  movq (%rdi), %r11
+  cmp $0, %r11
+  je skip_left
+  movq %r11, %rdi
+  call rec
+  movq (%rsp), %rdi
+skip_left:
+  cmpq %r8, %r10
+  je bad_exit
+  movl 8(%rdi), %eax
+  movl (%r9, %r10, 4), %edx
+  cmpl %eax, %edx
+  jne bad_exit
+  inc %r10
+
+  movq 12(%rdi), %r11
+  cmp $0, %r11
+  je skip_right
+  movq %r11, %rdi
+  call rec
+skip_right:
+  popq %rdi
+  ret
+
+
+.section .data
+__ExpectedArray: .int -1229501651, -1131069940, -1108409208, -926535270, -716294194, 574314772, 593163945, 1047113503, 1293714695, 2132951809
+
+__ExpectedArraySize: .int 10
+__Garbage_665279657: .byte 46, 213, 171, 160, 62, 51, 123, 21, 77
+__Nodes:
+.quad 0
+.int -1229501651
+.quad 0
+.quad __Nodes + 60
+.int 1047113503
+.quad 0
+.quad __Nodes + 180
+.int -716294194
+.quad __Nodes + 80
+.quad 0
+.int 593163945
+.quad 0
+.quad __Nodes + 100
+.int 1293714695
+.quad __Nodes + 140
+.quad 0
+.int 574314772
+.quad __Nodes + 20
+.quad 0
+.int -1108409208
+.quad 0
+.quad 0
+.int 2132951809
+.quad 0
+.quad __Nodes + 0
+.int -1131069940
+.quad __Nodes + 40
+.quad __Nodes + 120
+.int -926535270
+.quad 0
+__Garbage_912093139: .byte 179, 145, 13, 122, 179, 216
+root:
+.quad __Nodes + 160
+
+node:
+.quad 1443311772
+.int -926535270
+.quad 453506098

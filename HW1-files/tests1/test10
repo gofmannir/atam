@@ -1,0 +1,21 @@
+.global _start
+
+.section .text
+
+  mov $BitCheck, %rax
+  cmpl $1, (%rax)
+  jne bad_exit
+
+  movq $60, %rax
+  movq $0, %rdi
+  syscall
+
+bad_exit:
+  movq $60, %rax
+  movq $1, %rdi
+  syscall
+
+.section .data
+Num1: .quad 0b0000000000000100000000000000000000000000000000000000101000010001
+Num2: .quad 0b0101010101010001100111010000000000000000000000000010000100001001
+BitCheck: .int 0
