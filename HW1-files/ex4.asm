@@ -370,12 +370,12 @@ geom_only_HW1:
     movl $2, %eax              # %eax = 2 (only geometric progression possible)
 
 set_result_HW1:
-    movb %al, result(%rip)     # Store Result
+    movb %al, Result(%rip)     # Store Result
     jmp done_HW1
 
 always_possible_HW1:
     # For lists with one or no nodes, both progressions are possible
-    movb $3, result(%rip)      # Result = 3 (both possible)
+    movb $3, Result(%rip)      # Result = 3 (both possible)
     jmp done_HW1
 
 done_HW1:
