@@ -1,0 +1,3 @@
+Place your file "students_code.S" here.
+Run "basic_test.sh"
+(If needed, first run "chmod +x basic_test.sh" command)
