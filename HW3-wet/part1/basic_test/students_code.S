@@ -131,11 +131,11 @@ matrix_multiplication:
 
     pushq %rbp
     movq  %rsp, %rbp
-    subq  $80, %rsp                # Reserve 80 bytes: locals + space to save %r12 and %r13
+    subq  $80, %rsp                # Reserve 80 bytes for locals and callee-saved regs
 
     # Save callee-saved registers %r12 and %r13
-    movq  %r12, -56(%rbp)          # store the old %r12
-    movq  %r13, -64(%rbp)          # store the old %r13
+    movq  %r12, -56(%rbp)
+    movq  %r13, -64(%rbp)
 
     # Store parameters in local memory
     movq  %rdi, -8(%rbp)           # res
@@ -146,38 +146,37 @@ matrix_multiplication:
     movl  %r9d, -40(%rbp)          # o
 
     movq  16(%rbp), %r10           # q -> r10
-    movl  %r10d, -44(%rbp)         # store q as 32-bit
-
+    movl  %r10d, -44(%rbp)         # q (32-bit)
     movq  24(%rbp), %r10           # p -> r10
-    movl  %r10d, -48(%rbp)         # store p as 32-bit
+    movl  %r10d, -48(%rbp)         # p (32-bit)
 
-    #-----------------------------------------------------------------
-    # Dimension check: for (m x n) * (o x q), we need (n == o)
-    #-----------------------------------------------------------------
+    ###################################################################
+    # Dimension check: for (m x n) * (o x q), we need n == o
+    ###################################################################
     movl  -36(%rbp), %eax          # %eax = n
-    cmpl  -40(%rbp), %eax          # compare with o
+    cmpl  -40(%rbp), %eax          # compare n, o
     jne   multiplication_not_valid
 
     # i = 0
     xorl  %r12d, %r12d
 
 outer_loop_start:
-    cmpl  -32(%rbp), %r12d
+    cmpl  -32(%rbp), %r12d        # if i >= m => break
     jge   outer_loop_end
 
     # j = 0
     xorl  %r13d, %r13d
 
 inner_loop_start:
-    cmpl  -44(%rbp), %r13d
+    cmpl  -44(%rbp), %r13d        # if j >= q => break
     jge   inner_loop_end
 
-    #---------------------------------------------------------
+    #----------------------------------------------
     # 1) Compute inner product: mat_a[i,*] dot mat_b[*,j]
     #    int inner_prod(int* mat_a[], int* mat_b[],
     #                   unsigned long row_a, unsigned long col_b,
     #                   unsigned long n, unsigned long q);
-    #---------------------------------------------------------
+    #----------------------------------------------
     movq  -16(%rbp), %rdi     # mat_a
     movq  -24(%rbp), %rsi     # mat_b
     movl  %r12d,     %edx     # row_a = i
@@ -185,29 +184,29 @@ inner_loop_start:
     movl  -36(%rbp), %r8d     # n
     movl  -44(%rbp), %r9d     # q
     call  inner_prod
-    # => result in %eax
+    # => result in %eax (could be negative)
 
-    #---------------------------------------------------------
-    # 2) Take result mod p (unsigned)
-    #---------------------------------------------------------
-    movl  -48(%rbp), %ecx     # p
-    xorl  %edx, %edx          # zero-extend EAX => EDX:EAX
-    divl  %ecx                # (EDX:EAX / ECX) => EAX=quotient, EDX=remainder
-    movl  %edx, %eax          # remainder => %eax
+    #----------------------------------------------
+    # 2) result mod p  (signed => remainder in [0..p-1])
+    #----------------------------------------------
+    movl  -48(%rbp), %ecx     # p -> ECX
+    cdq                       # sign-extend EAX into EDX:EAX
+    idivl %ecx                # signed divide  EDX:EAX by ECX
+                              # => EAX = quotient, EDX = remainder
+    movl  %edx, %eax          # remainder => EAX (but might be negative)
+    cmpl  $0, %eax
+    jge   .skip_fix
+    addl  %ecx, %eax          # if remainder < 0 => remainder += p
+.skip_fix:
 
-    #---------------------------------------------------------
+    #----------------------------------------------
     # 3) Store %eax in res[i][j]
-    #    void set_element_in_matrix(int* matrix[],
-    #                               unsigned long max_col,
-    #                               unsigned long row,
-    #                               unsigned long col,
-    #                               int value);
-    #---------------------------------------------------------
-    movq  -8(%rbp),  %rdi     # matrix = res
+    #----------------------------------------------
+    movq  -8(%rbp),  %rdi     # res
     movl  -44(%rbp), %esi     # max_col = q
     movl  %r12d,     %edx     # row = i
     movl  %r13d,     %ecx     # col = j
-    movl  %eax,      %r8d     # value = %eax
+    movl  %eax,      %r8d     # value = remainder in [0..p-1]
     call  set_element_in_matrix
 
     # j++
@@ -220,17 +219,16 @@ inner_loop_end:
     jmp   outer_loop_start
 
 outer_loop_end:
-    movl  $1, %eax            # return 1 (success)
+    movl  $1, %eax
     jmp   end
 
 multiplication_not_valid:
-    movl  $0, %eax            # return 0 (failure)
+    movl  $0, %eax
 
 end:
-    # Restore our callee-saved registers
-    movq  -64(%rbp), %r13     # restore old %r13
-    movq  -56(%rbp), %r12     # restore old %r12
-
+    # Restore callee-saved registers
+    movq  -64(%rbp), %r13
+    movq  -56(%rbp), %r12
     addq  $80, %rsp
     popq  %rbp
     ret
