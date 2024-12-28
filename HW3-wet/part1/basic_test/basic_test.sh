@@ -8,7 +8,7 @@ if [ -f "hw3_part1.out" ]; then
 	else
 		echo -e "\n\nTest:\tFAIL - diff"
 	fi
-	rm out
+	# rm out
 else
 	echo -e "Test:\tFAIL - compile with test error"
 fi
