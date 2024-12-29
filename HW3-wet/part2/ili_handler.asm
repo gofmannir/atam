@@ -17,11 +17,12 @@ my_ili_handler:
     pushq %rcx
     pushq %rdx
     pushq %rsi
+    pushq %rdi
     pushq %rbp
     pushq %rsp
 
 	# get the opcode
-	movq 120(%rsp), %rax
+	movq 128(%rsp), %rax  # RIP
 	movq (%rax), %rax
     
     cmpb $0x0F, %al        # Compare the first byte (AL) with 0x0F
@@ -39,6 +40,7 @@ single_byte_opcode:
     # --- Restore registers ---
     popq %rsp
     popq %rbp
+    popq %rsi # the orginal rdi !
     popq %rsi
     popq %rdx
     popq %rcx
@@ -72,6 +74,7 @@ two_byte_opcode:
     popq %rsp
     popq %rbp
     popq %rsi
+    popq %rsi
     popq %rdx
     popq %rcx
     popq %rbx
@@ -94,6 +97,7 @@ equal_zero:
     # --- Restore registers ---
     popq %rsp
     popq %rbp
+    popq %rdi
     popq %rsi
     popq %r15
     popq %r14
